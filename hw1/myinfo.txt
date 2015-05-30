@@ -1,0 +1,12 @@
+./myinfo
+Sat May 30 16:42:16 CDT 2015
+---------------------------
+System name: uvbox
+User information:
+full name: Chuck McEniry,,,
+log name: chuck
+uid: 1000
+gid: 1000
+HOME dir: /home/chuck
+Default shell: /bin/bash
+-------------------------------
