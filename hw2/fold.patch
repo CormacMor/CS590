@@ -1,0 +1,90 @@
+--- fold.c.orig	2012-04-29 06:45:30.000000000 -0500
++++ fold.c	2015-06-07 21:40:25.612118900 -0500
+@@ -44,13 +44,17 @@
+ /* If nonzero, at least one of the files we read was standard input. */
+ static bool have_read_stdin;
+ 
+-static char const shortopts[] = "bsw:0::1::2::3::4::5::6::7::8::9::";
++/* If nonzero, add blank line between text lines. */
++static bool double_space;
++
++static char const shortopts[] = "bswd:0::1::2::3::4::5::6::7::8::9::";
+ 
+ static struct option const longopts[] =
+ {
+   {"bytes", no_argument, NULL, 'b'},
+   {"spaces", no_argument, NULL, 's'},
+   {"width", required_argument, NULL, 'w'},
++  {"double", no_argument, NULL, 'd'},
+   {GETOPT_HELP_OPTION_DECL},
+   {GETOPT_VERSION_OPTION_DECL},
+   {NULL, 0, NULL, 0}
+@@ -79,6 +83,7 @@
+   -b, --bytes         count bytes rather than columns\n\
+   -s, --spaces        break at spaces\n\
+   -w, --width=WIDTH   use WIDTH columns instead of 80\n\
++  -d, --double        double line spacing\n\
+ "), stdout);
+       fputs (HELP_OPTION_DESCRIPTION, stdout);
+       fputs (VERSION_OPTION_DESCRIPTION, stdout);
+@@ -153,6 +158,8 @@
+         {
+           line_out[offset_out++] = c;
+           fwrite (line_out, sizeof (char), offset_out, stdout);
++          if (double_space)
++            putchar ('\n');
+           column = offset_out = 0;
+           continue;
+         }
+@@ -190,6 +197,8 @@
+                   fwrite (line_out, sizeof (char), (size_t) logical_end,
+                           stdout);
+                   putchar ('\n');
++                  if (double_space)
++                    putchar ('\n');
+                   /* Move the remainder to the beginning of the next line.
+                      The areas being copied here might overlap. */
+                   memmove (line_out, line_out + logical_end,
+@@ -209,6 +218,8 @@
+ 
+           line_out[offset_out++] = '\n';
+           fwrite (line_out, sizeof (char), (size_t) offset_out, stdout);
++          if (double_space)
++            putchar ('\n');
+           column = offset_out = 0;
+           goto rescan;
+         }
+@@ -219,7 +230,11 @@
+   saved_errno = errno;
+ 
+   if (offset_out)
+-    fwrite (line_out, sizeof (char), (size_t) offset_out, stdout);
++    {
++      fwrite (line_out, sizeof (char), (size_t) offset_out, stdout);
++      if (double_space)
++        putchar ('\n');
++    }
+ 
+   if (ferror (istream))
+     {
+@@ -253,7 +268,7 @@
+ 
+   atexit (close_stdout);
+ 
+-  break_spaces = count_bytes = have_read_stdin = false;
++  break_spaces = count_bytes = have_read_stdin = double_space = false;
+ 
+   while ((optc = getopt_long (argc, argv, shortopts, longopts, NULL)) != -1)
+     {
+@@ -290,6 +305,11 @@
+             width = tmp_ulong;
+           }
+           break;
++        case 'd':
++          {
++            double_space = true;
++            break;
++          }
+ 
+         case_GETOPT_HELP_CHAR;
+ 
