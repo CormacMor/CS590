@@ -1,5 +1,5 @@
---- fold.c.orig	2012-04-29 06:45:30.000000000 -0500
-+++ fold.c	2015-06-07 21:40:25.612118900 -0500
+--- fold.c
++++ fold.c	2015-06-11 17:36:17.836705436 -0500
 @@ -44,13 +44,17 @@
  /* If nonzero, at least one of the files we read was standard input. */
  static bool have_read_stdin;
